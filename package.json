@@ -1,0 +1,31 @@
+{
+  "name": "autosmtp",
+  "version": "1.0.5",
+  "description": "auto smtp send email",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env NODE_ENV=development electron .",
+    "package": "cross-env NODE_ENV=production electron-builder --win --x64",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "electron-reload": "2.0.0-alpha.1"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  },
+  "build":{
+    "appId": "com.jvfan.autosmtp",
+    "win":{
+      "target": ["portable"],
+      "icon": "build/mail.ico"
+    }
+  }
+}

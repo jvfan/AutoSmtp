@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMTP 邮件发送器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px minmax(auto, calc(100vw - 700px)) 300px;
+            gap: 20px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 0px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .btn-group {
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:last-child {
+            margin-right: 0;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #send-once {
+            padding: 12px 24px;
+            background-color: transparent;
+            color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #send-once:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        #send-once:active {
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+
+        .list-container {
+            margin-top: 20px;
+        }
+
+        .list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .toggle-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            float: right;
+        }
+
+        .toggle-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .last-updated {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .import-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .import-btn:hover {
+            background-color: #218838;
+        }
+
+        figure.image {
+            display: inline-block;
+            border: 1px solid gray;
+            margin: 0 2px 0 1px;
+            background: #f5f2f0;
+        }
+        figure.align-left {
+            float: left;
+        }
+        figure.align-right {
+            float: right;
+        }
+        figure.image img {
+            margin: 8px 8px 0 8px;
+        }
+        figure.image figcaption {
+            margin: 6px 8px 6px 8px;
+            text-align: center;
+        }
+        img.align-left {
+            float: left;
+        }
+        img.align-right {
+            float: right;
+        }
+        .mce-toc {
+            border: 1px solid gray;
+        }
+        .mce-toc h2 {
+            margin: 4px;
+        }
+        .mce-toc li {
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="column">
+            <h2>邮件配置</h2>
+            <div class="form-group">
+                <label for="server">服务器：</label>
+                <input type="text" id="server" placeholder="输入您的电子邮件服务器" value="smtp.example.com">
+            </div>
+            <div class="form-group">
+                <label for="port">端口：</label>
+                <input type="number" id="port" placeholder="输入端口号" value="465">
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="ssl" checked> 启用 SSL 加密</label>
+            </div>
+            <div class="form-group">
+                <label for="user-email">电子邮件：</label>
+                <input type="text" id="user-email" placeholder="输入您的电子邮件" value="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="password">电子邮件密码：</label>
+                <input type="password" id="password" placeholder="输入您的电子邮件密码">
+            </div>
+            <div class="form-group">
+                <label for="display-name">显示名称：</label>
+                <input type="text" id="display-name" placeholder="输入您的显示名称" value="Your Name 👻">
+            </div>
+            <div class="form-group">
+                <label for="interval">发送间隔（秒）：</label>
+                <input type="number" id="interval" placeholder="输入发送间隔" value="10">
+            </div>
+            <div class="btn-group">
+                <button id="set-sender-info" class="btn">更新发送配置</button>
+            </div>
+        </div>
+        <div id="email-send-column" class="column" style="grid-column: span 2;">
+            <h2>邮件发送 <button id="toggle-btn" class="toggle-btn" onclick="toggleList()">显示发信状态</button></h2>
+            <div class="form-group">
+                <label for="email-list">电子邮件地址列表：</label>
+                <textarea id="email-list" rows="8" placeholder="输入电子邮件地址" style="resize: vertical;"
+                    spellcheck="false">name,name@example.com</textarea>
+                <div style="display: flex; align-items: center;">
+                    <button class="import-btn" onclick="importData()">导入表格数据</button>
+                    <span style="margin-left: 10px; font-size: 14px; color: #666;">表头格式：name,email</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="subject">主题：</label>
+                <input type="text" id="subject" placeholder="填写主题，{{name}} 会替换为收件人名称" value="您好，{{name}}！">
+            </div>
+            <div class="form-group">
+                <label for="content">内容：</label>
+                <!-- <textarea id="content" rows="10" placeholder="输入电子邮件内容" style="resize: vertical;"
+                    spellcheck="false">这是一封测试邮件。📧</textarea> -->
+                <textarea id="editor"></textarea>
+
+                <!-- 用于存放导出的 html -->
+                <textarea id="editor-output" style="display: none;"></textarea>
+                <button id="export-html" style="display: none;"></button>
+            </div>
+            <div class="btn-group">
+                <button id="send-auto" class="btn">开始自动发送</button>
+                <button id="send-once" class="btn">发送第一封进行测试</button>
+            </div>
+        </div>
+        <div class="column" id="status-column" style="display: none;">
+            <h2>发送状态</h2>
+            <div class="list-container">
+                <div id="additional-info">
+                    <h3>正在发送</h3>
+                    <p id="current-send">无</p>
+                    <h3>等待发送<span id="wait-process"></span></h3>
+                    <ul id="wait-list" class="list"></ul>
+                    <h3>成功列表<span id="success-process"></span></h3>
+                    <ul id="success-list" class="list"></ul>
+                    <h3>失败列表<span id="failed-process"></span></h3>
+                    <ul id="failed-list" class="list"></ul>
+                </div>
+            </div>
+            <div class="last-updated" id="last-updated">请先触发一次邮件发送</div>
+        </div>
+    </div>
+    <script src="bundle.js"></script>
+
+    <script src="tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="xlsx.full.min.js"></script>
+
+    <script>
+        function toggleList() {
+            const statusColumn = document.getElementById('status-column');
+            const toggleBtn = document.getElementById('toggle-btn');
+            if (statusColumn.style.display === 'none') {
+                statusColumn.style.display = 'block';
+                document.getElementById('email-send-column').style.gridColumn = 'span 1';
+                toggleBtn.textContent = '隐藏发信状态';
+            } else {
+                statusColumn.style.display = 'none';
+                document.getElementById('email-send-column').style.gridColumn = 'span 2';
+                toggleBtn.textContent = '显示发信状态';
+            }
+        }
+
+        function importData() {
+            // 创建一个隐藏的文件输入框
+            let xlsx_input = document.createElement('input');
+            xlsx_input.type = 'file';
+            xlsx_input.accept = '.xlsx, .xls, .xlsm';
+            xlsx_input.style.display = 'none';
+            document.body.appendChild(xlsx_input);
+
+            // 当文件被选择时触发
+            xlsx_input.addEventListener('change', function(e) {
+                let file = e.target.files[0];
+                if (!file) {
+                    // 移除文件输入框
+                    document.body.removeChild(xlsx_input);
+                    return;
+                }
+
+                // 使用 SheetJS 解析 Excel 文件
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    let data = new Uint8Array(event.target.result);
+                    let workbook = XLSX.read(data, {type: 'array'});
+
+                    // 获取第一个工作表中的数据
+                    let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    let rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+                    document.getElementById('email-list').value = ""; // 清空文本框
+
+                    // 根据表头顺序获取 name 和 email 的索引
+                    let nameIndex = -1;
+                    let emailIndex = -1;
+                    if (rows.length > 0) {
+                        let headers = rows[0];
+                        nameIndex = headers.indexOf('name');
+                        emailIndex = headers.indexOf('email');
+                    }
+
+                    if (nameIndex === -1 || emailIndex === -1) {
+                        alert('表头格式错误，请检查是否包含 name 和 email 字段');
+
+                        // 移除文件输入框
+                        document.body.removeChild(xlsx_input);
+                        return;
+                    }
+
+                    // 输出数据
+                    for (let i = 1; i < rows.length; i++) { // 从第二行开始，因为第一行是表头
+                        let rowData = rows[i];
+                        document.getElementById('email-list').value += rowData[nameIndex] + ',' + rowData[emailIndex] + '\n';
+                    }
+
+                    // 移除文件输入框
+                    document.body.removeChild(xlsx_input);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            // 模拟点击文件输入框
+            xlsx_input.click();
+        }
+
+        // const useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDarkMode = false;
+        const isSmallScreen = window.matchMedia('(max-width: 1023.5px)').matches;
+
+        tinymce.init({
+            selector: 'textarea#editor',
+            placeholder: 'Type here...',
+            language_url: './langs/zh_CN.js',   // 本地语言包文件路径
+            language: 'zh_CN',                  // 本地语言包标识
+            plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons accordion autoresize',
+            editimage_cors_hosts: ['picsum.photos'],
+            menubar: 'file edit view insert format tools table help',
+            toolbar: "undo redo | accordion accordionremove | blocks fontfamily fontsize | bold italic underline strikethrough | align numlist bullist | link image | table media | lineheight outdent indent| forecolor backcolor removeformat | charmap emoticons | code fullscreen preview | save print | pagebreak anchor codesample | ltr rtl",
+            autosave_ask_before_unload: true,
+            autosave_interval: '30s',
+            autosave_prefix: '{path}{query}-{id}-',
+            autosave_restore_when_empty: false,
+            autosave_retention: '2m',
+            image_advtab: true,
+            link_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_class_list: [
+                { title: 'None', value: '' },
+                { title: 'Some class', value: 'class-name' }
+            ],
+            importcss_append: true,
+            file_picker_callback: (callback, value, meta) => {
+                /* Provide file and text for the link dialog */
+                if (meta.filetype === 'file') {
+                    callback('https://www.google.com/logos/google.jpg', { text: 'My text' });
+                }
+
+                /* Provide image and alt text for the image dialog */
+                if (meta.filetype === 'image') {
+                    callback('https://www.google.com/logos/google.jpg', { alt: 'My alt text' });
+                }
+
+                /* Provide alternative source and posted for the media dialog */
+                if (meta.filetype === 'media') {
+                    callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.google.com/logos/google.jpg' });
+                }
+            },
+            min_height: 300,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image table',
+            skin: useDarkMode ? 'oxide-dark' : 'oxide',
+            content_css: useDarkMode ? 'dark' : 'default',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+            license_key: 'gpl',
+            menubar:false,
+            promotion: false,
+            statusbar: true,
+            branding: false,
+            autosave_ask_before_unload: false,
+            autoresize_min_height: 300,
+            autoresize_bottom_margin: 0
+        });
+
+        // 当 export-html 按钮被点击时，将编辑器中的内容导出为 html
+        document.getElementById('export-html').addEventListener('click', function() {
+            const editor = tinymce.get('editor');
+            const content = editor.getContent();
+            document.getElementById('editor-output').value = content;
+        });
+    </script>
+</body>
+</html>
